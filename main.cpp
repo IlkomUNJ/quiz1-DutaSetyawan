@@ -1,157 +1,137 @@
 #include <iostream>
-#include "bank_customer.h"
-#include "buyer.h"
+#include <string>
 #include <limits> 
 
-enum PrimaryPrompt { LOGIN, REGISTER, EXIT };
-enum BuyerMenu { CHECK_STATUS, UPGRADE_TO_SELLER, BANKING, BROWSE, ORDER, PAYMENT, LOGOUT, DELETE_ACCOUNT };
-enum BankingMenu { CHECK_BALANCE, DEPOSIT, WITHDRAW, BANK_EXIT };
+#include "bank_customer.h"
+#include "buyer.h"
+
 
 using namespace std;
 
-void clearInputBuffer() {
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+void handleUserDashboard();
+void processRegistration();
+
+void handleUserDashboard() {
+    int dashboardChoice;
+    bool hasSellerAccount = false;
+
+    do {
+        cout << "\n--- Dasbor Pengguna ---\n";
+        cout << "1. Lihat Detail Akun\n";
+        cout << "2. Tingkatkan ke Akun Penjual\n";
+        cout << "3. Logout\n";
+        cout << "Pilihan Anda: ";
+        cin >> dashboardChoice;
+
+        switch (dashboardChoice) {
+            case 1:
+                cout << "\n>> Menampilkan detail akun...\n";
+                break;
+
+            case 2:
+                if (!hasSellerAccount) {
+                    cout << "\n>> Proses Peningkatan Akun ke Penjual...\n";
+                    string shopName, shopAddress;
+                    cout << "Masukkan Nama Toko Anda: ";
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+                    getline(cin, shopName);
+                    cout << "Masukkan Alamat Toko: ";
+                    getline(cin, shopAddress);
+                    cout << "Selamat! Toko '" << shopName << "' berhasil dibuat.\n";
+                    hasSellerAccount = true; 
+                } else {
+                    cout << "\n>> Anda sudah terdaftar sebagai penjual.\n";
+                }
+                break;
+
+            case 3:
+                cout << "\n>> Anda telah logout. Kembali ke menu utama...\n";
+                break;
+
+            default:
+                cout << "\n>> Pilihan tidak valid, silakan coba lagi.\n";
+        }
+    } while (dashboardChoice != 3);
+}
+
+
+void processRegistration() {
+    cout << "\n--- Pendaftaran Akun Baru ---\n";
+    string fullName, homeAddress, phoneNumber;
+    
+    cout << "Masukkan Nama Lengkap: ";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+    getline(cin, fullName);
+
+    cout << "Masukkan Alamat Rumah: ";
+    getline(cin, homeAddress);
+
+    cout << "Masukkan Nomor Telepon: ";
+    getline(cin, phoneNumber);
+
+    cout << "\n>> Akun untuk " << fullName << " berhasil dibuat!\n";
+
+    char createShopChoice;
+    cout << "Apakah Anda ingin membuka toko sekarang? (y/n): ";
+    cin >> createShopChoice;
+
+    if (createShopChoice == 'y' || createShopChoice == 'Y') {
+        handleUserDashboard(); 
+    }
 }
 
 int main() {
-    BankCustomer customer1(1, "Duta Setyawan", 1000.0);
-    Buyer buyer1(1, customer1.getName(), customer1);
-    bool isLoggedIn = false;
+    int menuSelection;
+    enum MainMenuOption { LOGIN = 1, REGISTER, EXIT };
 
-    PrimaryPrompt prompt = LOGIN;
-    while (prompt != EXIT) {
-        cout << "Selamat Datang di Toko Online!" << endl;
-        cout << "============================" << endl;
-        cout << "1. Login" << endl;
-        cout << "2. Register" << endl;
-        cout << "3. Exit" << endl;
-        cout << "Pilih Opsi: ";
-        int choice;
-        cin >> choice;
-        
-        
+    while (true) { 
+        cout << "\n--- Selamat Datang di Toko Online ---\n";
+        cout << "1. Login\n";
+        cout << "2. Registrasi\n";
+        cout << "3. Keluar\n";
+        cout << "Silakan pilih opsi: ";
+        cin >> menuSelection;
+
         if (cin.fail()) {
-            cout << "Input tidak valid. Silakan masukkan angka." << endl;
+            cout << "Input tidak valid. Harap masukkan angka.\n";
             cin.clear();
-            clearInputBuffer();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             continue;
         }
-        clearInputBuffer();
 
-        prompt = static_cast<PrimaryPrompt>(choice - 1);
-        switch (prompt) {
+        switch (menuSelection) {
             case LOGIN: {
-                cout << "\n--- Login ---" << endl;
-                
-                isLoggedIn = true; 
-                cout << "Login berhasil! Selamat datang, " << buyer1.getName() << "." << endl;
+                cout << "\n--- Halaman Login ---\n";
+                string username, password;
+                cout << "Username: ";
+                cin >> username;
+                cout << "Password: ";
+                cin >> password;
 
-                while (isLoggedIn) {
-                    cout << "\n--- Menu Pembeli ---" << endl;
-                    cout << "1. Cek Status Akun" << endl;
-                    cout << "2. Upgrade Akun menjadi Penjual" << endl;
-                    cout << "3. Fungsi Perbankan" << endl;
-                    cout << "4. Jelajahi Toko" << endl;
-                    cout << "5. Lihat Pesanan" << endl;
-                    cout << "6. Pembayaran" << endl;
-                    cout << "7. Logout" << endl;
-                    cout << "8. Hapus Akun" << endl;
-                    cout << "Pilih Opsi: ";
-                    int buyerChoice;
-                    cin >> buyerChoice;
-
-                    if (cin.fail()) {
-                        cout << "Input tidak valid. Silakan masukkan angka." << endl;
-                        cin.clear();
-                        clearInputBuffer();
-                        continue;
-                    }
-                    clearInputBuffer();
-
-                    BuyerMenu buyerMenu = static_cast<BuyerMenu>(buyerChoice - 1);
-
-                    switch (buyerMenu) {
-                        case UPGRADE_TO_SELLER:
-                            cout << "\n--- Upgrade Akun menjadi Penjual ---" << endl;
-                            cout << "Masukkan Nama Toko: ";
-                            
-                            break;
-                        case BANKING: {
-                            bool inBankingMenu = true;
-                            while (inBankingMenu) {
-                                cout << "\n--- Fungsi Perbankan ---" << endl;
-                                cout << "1. Cek Saldo" << endl;
-                                cout << "2. Deposit" << endl;
-                                cout << "3. Tarik Tunai" << endl;
-                                cout << "4. Kembali ke Menu Pembeli" << endl;
-                                cout << "Pilih Opsi: ";
-                                int bankingChoice;
-                                cin >> bankingChoice;
-
-                                if (cin.fail()) {
-                                    cout << "Input tidak valid. Silakan masukkan angka." << endl;
-                                    cin.clear();
-                                    clearInputBuffer();
-                                    continue;
-                                }
-                                clearInputBuffer();
-
-                                BankingMenu bankingMenu = static_cast<BankingMenu>(bankingChoice - 1);
-
-                                switch (bankingMenu) {
-                                    case CHECK_BALANCE:
-                                        cout << "Saldo Anda saat ini: $" << customer1.getBalance() << endl;
-                                        break;
-                                    case DEPOSIT:
-                                        double depositAmount;
-                                        cout << "Masukkan jumlah deposit: $";
-                                        cin >> depositAmount;
-                                        customer1.addBalance(depositAmount);
-                                        cout << "Deposit berhasil. Saldo baru: $" << customer1.getBalance() << endl;
-                                        break;
-                                    case WITHDRAW:
-                                        double withdrawAmount;
-                                        cout << "Masukkan jumlah penarikan: $";
-                                        cin >> withdrawAmount;
-                                        customer1.withdrawBalance(withdrawAmount);
-                                        cout << "Saldo baru: $" << customer1.getBalance() << endl;
-                                        break;
-                                    case BANK_EXIT:
-                                        inBankingMenu = false;
-                                        break;
-                                    default:
-                                        cout << "Opsi tidak valid." << endl;
-                                        break;
-                                }
-                            }
-                            break;
-                        }
-                        case LOGOUT:
-                            isLoggedIn = false;
-                            cout << "Anda telah logout." << endl;
-                            break;
-                        default:
-                            cout << "Fungsi belum diimplementasikan." << endl;
-                            break;
-                    }
+              
+                if (username == "user" && password == "password") {
+                    cout << "\n>> Login berhasil!\n";
+                    handleUserDashboard();
+                } else {
+                    cout << "\n>> Username atau password salah.\n";
                 }
                 break;
             }
+
             case REGISTER:
-                cout << "\n--- Registrasi ---" << endl;
-                cout << "Masukkan Nama: " << endl;
-                cout << "Masukkan Alamat: " << endl;
-                cout << "Masukkan Nomor Telepon: " << endl;
-                cout << "Registrasi berhasil!" << endl;
+                processRegistration();
+                cout << "\n>> Registrasi selesai. Silakan login untuk melanjutkan.\n";
                 break;
+
             case EXIT:
-                cout << "Keluar dari program." << std::endl;
-                break;
+                cout << "\n>> Terima kasih telah berkunjung. Sampai jumpa!\n";
+                return 0; 
+
             default:
-                cout << "Opsi tidak valid." << endl;
+                cout << "\n>> Opsi tidak dikenal.\n";
                 break;
         }
-        cout << endl;
     }
 
     return 0;
